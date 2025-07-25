@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>週頭ミーティング資料</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --main-bg: #f8fafc;
+            --container-bg: #ffffff;
+            --container-border: #e2e8f0;
+            --header-bg: #1e293b;
+            --header-text: #ffffff;
+            --accent: #3b82f6;
+            --accent-orange: #f97316;
+            --accent-green: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            /* 地域・部署別カラーシステム */
+            --region-bg: #0f172a;
+            --region-hover: #1e293b;
+            --region-text: #ffffff;
+            
+            --dept-bg: #334155;
+            --dept-hover: #475569;
+            --dept-text: #ffffff;
+            --dept-active: #3b82f6;
+            
+            --content-bg: #ffffff;
+            --content-text: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--main-bg);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            height: 75px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .btn-past {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-past:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Main Layout - 2 Pane Structure */
+        .main-layout {
+            display: flex;
+            margin-top: 75px;
+            height: calc(100vh - 75px);
+        }
+
+        /* Left Sidebar - 地域・部署ツリー */
+        .sidebar {
+            width: 280px;
+            background: var(--container-bg);
+            border-right: 1px solid var(--container-border);
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: width 0.3s ease;
+        }
+        
+        /* 部署集計表示時のサイドバー幅拡張 */
+        .sidebar.dept-aggregate-mode {
+            width: 400px;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(135deg, var(--header-bg) 0%, #334155 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .sidebar-controls {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-expand, .btn-collapse {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-expand {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #2563eb;
+        }
+
+        .btn-collapse {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #4b5563;
+        }
+
+        /* 表示切り替えタブ */
+        .sidebar-view-tabs {
+            display: flex;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+        }
+
+        .view-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            background: #e2e8f0;
+            color: #64748b;
+            margin-right: 4px;
+        }
+
+        .view-tab:last-child {
+            margin-right: 0;
+        }
+
+        .view-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .view-tab:hover:not(.active) {
+            background: #cbd5e1;
+            color: #475569;
+        }
+
+        /* 部署集計表示 */
+        .dept-aggregate-view {
+            padding: 16px;
+        }
+
+        .dept-list-aggregate {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dept-item-aggregate {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .dept-item-aggregate::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #9ca3af;
+            border-radius: 8px 0 0 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dept-item-aggregate:hover {
+            background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(2, 119, 189, 0.2);
+            border-color: #81d4fa;
+        }
+
+        .dept-item-aggregate:hover::before {
+            opacity: 1;
+        }
+
+        .dept-item-aggregate.active {
+            background: linear-gradient(135deg, var(--accent) 0%, #1976d2 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .dept-item-aggregate.active::before {
+            opacity: 0;
+        }
+
+        .dept-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+        }
+
+        /* 週次タブ（最上位階層） */
+        .weekly-tab-group {
+            margin-bottom: 0.5rem;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .weekly-tab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: #64748b;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.2s;
+            border: 1px solid #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .weekly-tab-header:hover {
+            background: #475569;
+        }
+
+        .weekly-content {
+            display: none;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .weekly-content.expanded {
+            display: block;
+        }
+
+        /* 事業部グループ（サンプルUIスタイル採用） */
+        .business-unit-group {
+            margin-bottom: 0.375rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        .business-unit-group.single-unit {
+            margin-bottom: 0.5rem;
+        }
+
+        .business-unit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.625rem;
+            background: #cbd5e1;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #334155;
+            transition: all 0.2s;
+            border: 1px solid #94a3b8;
+        }
+
+        .business-unit-header:hover {
+            background: #94a3b8;
+            color: #1e293b;
+        }
+
+        .unit-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .region-count, .dept-count {
+            background: rgba(255,255,255,0.7);
+            padding: 1px 4px;
+            border-radius: 6px;
+            font-size: 0.625rem;
+            color: #334155;
+            min-width: auto;
+        }
+
+        /* 地域リスト（不動産事業本部用） */
+        .regions-list {
+            display: none;
+            background: var(--main-bg);
+        }
+
+        .regions-list.expanded {
+            display: block;
+        }
+
+        .region-group {
+            margin-left: 0.75rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .region-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.375rem 0.5rem;
+            background: #e2e8f0;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+        }
+
+        .region-header:hover {
+            background: #cbd5e1;
+        }
+
+        .region-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 部署リスト */
+        .dept-list {
+            display: none;
+            background: var(--main-bg);
+        }
+
+        .dept-list.expanded {
+            display: block;
+        }
+
+        .dept-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.5rem 0.5rem 1.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .dept-item:hover {
+            background: var(--accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        .dept-item.active {
+            background: var(--accent);
+            color: white;
+            border-left-color: white;
+        }
+
+
+
+        /* 単一事業部（直接選択型） */
+        .nav-item.single-unit {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item.single-unit:hover {
+            background: var(--accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        .nav-item.single-unit.active {
+            background: var(--accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        /* Right Main Area - 選択された部署の詳細 */
+        .main-content {
+            flex: 1;
+            background: var(--main-bg);
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .content-header {
+            background: var(--container-bg);
+            padding: 24px 32px;
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .content-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-subtitle {
+            margin: 4px 0 0 0;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-sections {
+            padding: 32px;
+        }
+
+        .detail-section {
+            background: var(--container-bg);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-print-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: inherit;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .section-print-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .section-header.manager-report {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            color: #334155;
+        }
+
+        .section-header.last-week {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        .section-header.this-week {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .section-header.special-notes {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .section-content {
+            padding: 24px;
+        }
+
+        .section-content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .section-content li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 32px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 40vh;
+            }
+            
+            .main-content {
+                height: 60vh;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header, .sidebar {
+                display: none;
+            }
+            
+            .main-layout {
+                margin-top: 0;
+                height: auto;
+            }
+            
+            .main-content {
+                width: 100%;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-title">
+                    <h1>
+                        <i class="fas fa-calendar-week"></i>
+                        週頭ミーティング資料
+                    </h1>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-past" onclick="window.open('https://dnets.youmeman.jp/scripts/dneo/zdoc.exe?cmd=docindex&log=on#row=0&fldsort=&order=&num=100&folder=194&srch_key=&cmd=docindex', '_blank')">
+                    <i class="fas fa-history"></i>
+                    過去の週頭はこちら
+                </button>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    印刷
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Left Sidebar - 全事業部ツリー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-sitemap"></i> 全事業部</h2>
+            </div>
+            
+            <div class="sidebar-view-tabs">
+                <button class="view-tab active" id="weekly-view-tab" onclick="switchView('weekly')">
+                    <i class="fas fa-calendar-week"></i>
+                    週次表示
+                </button>
+                <button class="view-tab" id="dept-aggregate-tab" onclick="switchView('dept-aggregate')">
+                    <i class="fas fa-chart-line"></i>
+                    部署集計
+                </button>
+            </div>
+            
+            <div class="sidebar-controls">
+                <button class="btn btn-expand" onclick="expandAll()">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                    全て展開
+                </button>
+                <button class="btn btn-collapse" onclick="collapseAll()">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    全て収納
+                </button>
+            </div>
+            
+            <div class="navigation-tree" id="weekly-navigation">
+                
+        <div class="weekly-tab-group">
+            <div class="weekly-tab-header" onclick="toggleWeeklyTab(this)">
+                <div class="unit-info">
+                    <span>週頭ミーティング2025/07/22</span>
+                </div>
+            </div>
+            <div class="weekly-content">
+                
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>鹿児島本店</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-3-55f47713')">
+                    営業部
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-8-4c0704a9')">
+                    建築部
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>熊本支店</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-14-20780a38')">
+                    営業部
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-19-137bda2d')">
+                    建築部
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>栃木支店</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-25-79825941')">
+                    営業部
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-30-637534af')">
+                    建築部
+                </div>
+            
+            </div>
+        </div>
+        <div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-35-45fe7c31')">
+        <div class="unit-info">
+            <span>山梨支店</span>
+        </div>
+    </div>
+</div>
+
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>ＦＣ事業本部</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-41-72a7d6aa')">
+                    SV部
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-46-a1d4c009')">
+                    FCリノベーション
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-51-b32622fd')">
+                    設計部
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-56-132b98a4')">
+                    資材
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>ソリューション事業本部</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-62-7afde312')">
+                    リフォーム
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-67-dffd1c43')">
+                    リノベーション
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>不動産事業本部</span>
+                </div>
+            </div>
+            <div class="regions-list">
+        
+                <div class="region-group">
+                    <div class="region-header" onclick="toggleRegion(this)">
+                        <div class="region-info">
+                            <span>鹿児島</span>
+                        </div>
+                    </div>
+                    <div class="dept-list">
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-74-4306318c')">経営企画室</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-79-cb563d9d')">ｼｽﾃﾑ管理室</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-84-c109fc55')">賃貸管理部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-89-52ac4b84')">業務部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-94-c9907215')">ｶｽﾀﾏｰｻｰﾋﾞｽ部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-99-663b717e')">ｳﾁｼﾙﾍﾞ</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-104-deb4c738')">賃貸営業部</div>
+                    </div>
+                </div>
+            
+                <div class="region-group">
+                    <div class="region-header" onclick="toggleRegion(this)">
+                        <div class="region-info">
+                            <span>熊本</span>
+                        </div>
+                    </div>
+                    <div class="dept-list">
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-110-fd35607b')">賃貸管理部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-115-745454f1')">賃貸営業部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-120-1e5edc98')">業務部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-125-86cac4f1')">ｶｽﾀﾏｰｻｰﾋﾞｽ部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-130-c3e80e99')">みやき店</div>
+                    </div>
+                </div>
+            
+                <div class="region-group">
+                    <div class="region-header" onclick="toggleRegion(this)">
+                        <div class="region-info">
+                            <span>栃木</span>
+                        </div>
+                    </div>
+                    <div class="dept-list">
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-136-f3194d58')">賃貸管理部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-141-358588f1')">賃貸営業部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-146-9f3a8957')">業務部</div>
+                <div class="dept-item" onclick="selectDept(this, 'section-151-2860cf8b')">ｶｽﾀﾏｰｻｰﾋﾞｽ部</div>
+                    </div>
+                </div>
+            
+                <div class="region-group">
+                    <div class="region-header" onclick="toggleRegion(this)">
+                        <div class="region-info">
+                            <span>山梨</span>
+                        </div>
+                    </div>
+                    <div class="dept-list">
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-157-e2da49bc')">賃貸管理部</div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        <div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-162-481b707b')">
+        <div class="unit-info">
+            <span>サポート</span>
+        </div>
+    </div>
+</div>
+<div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-167-a360e65e')">
+        <div class="unit-info">
+            <span>地域開発部</span>
+        </div>
+    </div>
+</div>
+<div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-172-ecb58281')">
+        <div class="unit-info">
+            <span>IT</span>
+        </div>
+    </div>
+</div>
+<div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-177-3bcbebdd')">
+        <div class="unit-info">
+            <span>アソシエート</span>
+        </div>
+    </div>
+</div>
+
+        <div class="business-unit-group">
+            <div class="business-unit-header" onclick="toggleBusinessUnit(this)">
+                <div class="unit-info">
+                    <span>関連会社</span>
+                </div>
+            </div>
+            <div class="dept-list">
+        
+                <div class="dept-item" onclick="selectDept(this, 'section-183-b6829161')">
+                    LA
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-188-8a3d431b')">
+                    YM設計
+                </div>
+            
+                <div class="dept-item" onclick="selectDept(this, 'section-193-d58266ae')">
+                    総研
+                </div>
+            
+            </div>
+        </div>
+        <div class="business-unit-group single-unit">
+    <div class="business-unit-header" onclick="selectDept(this, 'section-198-de821430')">
+        <div class="unit-info">
+            <span>管理本部</span>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+                
+            </div>
+            
+            <div class="dept-aggregate-view" id="dept-aggregate-navigation" style="display: none;">
+                <!-- 部署集計表示用のナビゲーション -->
+            </div>
+        </div>
+
+        <!-- Right Main Content - 選択された部署の詳細 -->
+        <div class="main-content">
+            <div class="empty-state" id="empty-state">
+                <i class="fas fa-mouse-pointer"></i>
+                <h3>部署を選択してください</h3>
+                <p>左のサイドバーから部署を選択すると、詳細情報が表示されます</p>
+            </div>
+            
+            <div id="content-area" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title" id="content-title"></h1>
+                    <p class="content-subtitle" id="content-subtitle"></p>
+                </div>
+                
+                <div class="detail-sections">
+                    <div class="detail-section">
+                        <div class="section-header manager-report">
+                            <div class="section-header-left">
+                                <i class="fas fa-user-tie"></i>
+                                所属長報告欄
+                            </div>
+                            <button class="section-print-btn" onclick="printSection('manager-report')">
+                                <i class="fas fa-print"></i>
+                                印刷
+                            </button>
+                        </div>
+                        <div class="section-content" id="manager-report-content"></div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="section-header last-week">
+                            <div class="section-header-left">
+                                <i class="fas fa-calendar-check"></i>
+                                先週の経過
+                            </div>
+                            <button class="section-print-btn" onclick="printSection('last-week')">
+                                <i class="fas fa-print"></i>
+                                印刷
+                            </button>
+                        </div>
+                        <div class="section-content" id="last-week-content"></div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="section-header this-week">
+                            <div class="section-header-left">
+                                <i class="fas fa-calendar-plus"></i>
+                                今週の予定
+                            </div>
+                            <button class="section-print-btn" onclick="printSection('this-week')">
+                                <i class="fas fa-print"></i>
+                                印刷
+                            </button>
+                        </div>
+                        <div class="section-content" id="this-week-content"></div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="section-header special-notes">
+                            <div class="section-header-left">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                特記事項
+                            </div>
+                            <button class="section-print-btn" onclick="printSection('special-notes')">
+                                <i class="fas fa-print"></i>
+                                印刷
+                            </button>
+                        </div>
+                        <div class="section-content" id="special-notes-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // データを格納
+        const sectionData = {
+  "section-3-55f47713": {
+    "title": "営業部",
+    "parent": "鹿児島本店",
+    "path": "鹿児島本店 > 営業部",
+    "manager_report": [
+      "- 8/2 所有と売却セミナー開催",
+      "- 組 名"
+    ],
+    "last_week": [
+      "- 7/14 9：15～売買預かり物件M",
+      "10：00～面談",
+      "- 7/15 9：30～プロセス会議",
+      "13：00～管理物件オーナー担当振り分け",
+      "・ユーミーclass松永執行役員対応",
+      "- 7/16 12：00～足利銀行来鹿２名",
+      "- 7/17 11：00～戦略訪問M",
+      "10：00～吉野、中央地域支部会会議"
+    ],
+    "this_week": [
+      "- 7/22 ローラー訪問（姶良・霧島）",
+      "- 7/22 BS下竜尾着工前打合せ",
+      "- 7/23 電子・設計・請負契約書打合せ",
+      "- 7/24 BS小野4丁目上棟式",
+      "- 7/24 BS平松6560着工前打合せ",
+      "※オーナー訪問勉強会24日（北） 25日（吉野、南、姶良、霧島）"
+    ],
+    "special_notes": [
+      "- 行 事 64期 鹿児島オーナー会増員目標 280名 会員数261名 アセット俱楽部会員 ８１名"
+    ]
+  },
+  "section-8-4c0704a9": {
+    "title": "建築部",
+    "parent": "鹿児島本店",
+    "path": "鹿児島本店 > 建築部",
+    "manager_report": [
+      "- 7/15～",
+      "- 8/10 コストPJ各業者意見交換（30社）",
+      "- 7/25 金曜会交流BW大会（サンライトゾーン）80名"
+    ],
+    "last_week": [
+      "- 7/14 10:00～YM国分中央1丁目現場打ち杭工事施工見学会（建築部）",
+      "- 7/15 8:30～エスポワールN改修工事社内検査（リ） 9:30～営業プロセス会議（濱畑）",
+      "- 7/15 13:30～売価PJ（濱畑・川崎） 15:00～委員会まとめ会議",
+      "- 7/16 16:00～補修工事PJ（大迫）",
+      "- 7/17 終日～施工計画勉強会（松下） 15:00～ソリューション課外壁施工勉強会",
+      "- 7/18 9:30～安全衛生委員会 16:00～金曜会理事会"
+    ],
+    "this_week": [
+      "- 7/21 海の日祝日現場全休日",
+      "- 7/22 11:00～パークメゾン斉脇社内検査",
+      "13:00～ベーシック下竜尾116着工前",
+      "15:00～建築部会",
+      "- 7/23 9:30～協会防災模擬訓練（濱畑・松下）",
+      "15:00～売価勉強会 BS東餅田着工前",
+      "- 7/24 14:00～",
+      "- 7/25 社長室購買（中島・稲見）",
+      "13:00～自衛隊任期制度説明会（出口）",
+      "- 7/24 16:00～BS小野4丁目上棟式（餅巻き）",
+      "- 7/24 13:30～建設事業本部 建築部会",
+      "18:30～金曜会BW大会",
+      "- 7/25 第４土曜日現場全休日（現場閉所）"
+    ],
+    "special_notes": [
+      "- 7/22 BS真考RFCON",
+      "- 7/25 BS山下町ベースCON"
+    ]
+  },
+  "section-14-20780a38": {
+    "title": "営業部",
+    "parent": "熊本支店",
+    "path": "熊本支店 > 営業部",
+    "manager_report": [
+      "- ・オーナー会加入推進",
+      "- ・サマーフェスタ準備"
+    ],
+    "last_week": [
+      "- 7/14 17：00-合意契約物件、計画物件売価進捗会議"
+    ],
+    "this_week": [
+      "- 7/23 エスポアールⅡ売買契約 14:00-不動産M&A売買セミナー",
+      "- 7/24 10：00-E-Life不動産勉強会",
+      "14：00-第2回入居促進Ｐﾐｰﾃｨﾝｸﾞ"
+    ],
+    "special_notes": [
+      "- （管理）入居状況 YM玉名市中 0/15 8/30予定"
+    ]
+  },
+  "section-19-137bda2d": {
+    "title": "建築部",
+    "parent": "熊本支店",
+    "path": "熊本支店 > 建築部",
+    "manager_report": [
+      "- ・サマーフェスタ準備",
+      "- ・ボウリング大会準備",
+      "- ・7/22～23熊本社長室購買23件（福地支店長、中島さん、岸）",
+      "- ・7/28～29栃木社長室購買（稲見さん、浜田さん、岸）",
+      "- ・7/17～コストダウン協議会熊本業者面談開始"
+    ],
+    "last_week": [
+      "- 7/14 8：00-長嶺南4丁目1Ｆコン",
+      "17：00-合意契約物件、計画物件売価進捗会議",
+      "- 7/15 13：30-売価プロジェクトZoom",
+      "- 7/16 15:00-建築打ち合わせ（7月）",
+      "- 7/17 Paradiso大津Ａ棟6Ｆコン",
+      "13：00-大津町高尾野中間検査",
+      "13：30-ＹＭ坂梨様中間検査",
+      "- 7/18 18：00-熊本金曜会防災協"
+    ],
+    "this_week": [
+      "- 7/22-23 社長室購買",
+      "- 7/23 15：00-建築法規勉強会",
+      "18：00-コストダウン委員会分科会",
+      "- 7/24 ＹＭ杉本様３Ｆ躯体ｺﾝ",
+      "14：00-第2回入居促進Ｐﾐｰﾃｨﾝｸﾞ",
+      "- 7/25 8：30-品質パトロール",
+      "11：30-熊本金曜会理事会",
+      "13：30-第21回建築事業本部建築部会議",
+      "- 7/26 Paradiso大津Ｂ棟6Ｆコン"
+    ],
+    "special_notes": [
+      "- (管理外)入居状況",
+      "- YM御船マンション 16/18 1/30引渡 ユーミーＳ様 12/15 3/27引渡",
+      "- 武蔵ヶ丘マンションA棟 9/33 2/20引渡",
+      "- 一丁畑マンション 13/18 3/28引渡",
+      "- 武蔵ヶ丘マンションＢ棟 1/27 2/20引渡",
+      "- Life月出Ⅰ 11/15 5/30引渡",
+      "- YM西寺マンション 20/21 2/28引渡",
+      "- YM大津引水 65/99 3/14引渡"
+    ]
+  },
+  "section-25-79825941": {
+    "title": "営業部",
+    "parent": "栃木支店",
+    "path": "栃木支店 > 営業部",
+    "manager_report": [
+      "- ・施主・キーマンツアー集客",
+      "- ・オーナー会ボーリング大会準備(9/26予定）",
+      "参加目標 30名"
+    ],
+    "last_week": [
+      "- 7/14 西３丁目 地鎮祭",
+      "- 7/17 栃木銀行 M&A勉強会",
+      "- 7/18 小山市小山中間金"
+    ],
+    "this_week": [
+      "- 7/22 10：00～事業部間ミーティング",
+      "- 7/23 10：00～アイコネクト説明会",
+      "・24～23 山梨支店（松本支店長）",
+      "- 7/２４ 10：00～新築募集フローM",
+      "- 7/25 栃木銀行雀宮支店情報交換会"
+    ],
+    "special_notes": [
+      "- 管理 Y&M一条２丁目 13/14 3/4引渡",
+      "- Y&M大通り３丁目4-2 0/64 9/末",
+      "- Y&M長田１丁目 20/36 3/21引渡",
+      "- Y&M小山市小山 0/18 10/末",
+      "- Y&M駒生町1761 10/16 3/31引渡",
+      "- 元今泉マンション 3/31 5/27引渡"
+    ]
+  },
+  "section-30-637534af": {
+    "title": "建築部",
+    "parent": "栃木支店",
+    "path": "栃木支店 > 建築部",
+    "manager_report": [
+      "- ・全国安全週間",
+      "本週間 7/1～7/7"
+    ],
+    "last_week": [
+      "- 7/14 10:00～ Y&M西3丁目 地鎮祭、",
+      "五霞町PFI 監理者検査・試験杭",
+      "- 7/15 11:00～ 建築DXチーム打合せ（岩崎M、吉澤）、",
+      "13:30～ 売価プロジェクト（星SM）",
+      "- 7/16 17:30～ 栃木金曜会理事会"
+    ],
+    "this_week": [
+      "- 7/22 10:00～ 栃木事業部間ミーティング(吉澤)",
+      "- 7/23 10:00～ アイコネクト説明会（星SM）、",
+      "16:00～ 電子契約説明会（星SM）",
+      "- 7/24～26 鹿児島出張（稲見D 鹿児島社長室購買）",
+      "- 7/25 13:00～ 建築事業本部建築部会議"
+    ],
+    "special_notes": [
+      "- 管理 Y&M一条２丁目 13/14 3/4引渡",
+      "- Y&M大通り３丁目4-2 0/64 9/末",
+      "- Y&M長田１丁目 20/36 3/21引渡",
+      "- Y&M小山市小山 0/18 10/末",
+      "- Y&M駒生町1761 10/16 3/31引渡",
+      "- 元今泉マンション 3/31 5/27引渡"
+    ]
+  },
+  "section-35-45fe7c31": {
+    "title": "山梨支店",
+    "parent": "山梨支店",
+    "path": "山梨支店 > 山梨支店",
+    "manager_report": [
+      "- ・コストダウン協議",
+      "- ・7/26 オーナー総会(東条専務来甲)",
+      "- ・7/23～ 甲府市上町 開発工事スタート"
+    ],
+    "last_week": [
+      "- 7/15 13:30～売価プロジェクト",
+      "- 7/16 14:30～金曜会安全大会",
+      "- 7/17 9:30～営業戦略会議",
+      "- 7/17 10:45～支店会議"
+    ],
+    "this_week": [
+      "- 7/22 ～",
+      "- 7/22 17:00～Yチームミーティング(福地)",
+      "- 7/24 熊本支店社長室購買(福地出張)",
+      "- 7/24 10:00～新築募集フロー講習会(松本・棚町)",
+      "- 7/25 13:30～建築事業本部建築部会議",
+      "- 7/26 15:00～オーナー会・懇親会",
+      "- ～25日 社長室購買(浜田氏来甲)"
+    ],
+    "special_notes": [
+      "- 入居率 山梨支店全体（空室3/726) 99.58％ （7/18現在)",
+      "- 9/1～サングーテ・サングーテⅡ 全8戸賃貸管理スタート"
+    ]
+  },
+  "section-41-72a7d6aa": {
+    "title": "SV部",
+    "parent": "ＦＣ事業本部",
+    "path": "ＦＣ事業本部 > SV部",
+    "manager_report": [
+      "- ・全国実績：7,600棟98,000世帯（2025年3月末予定）",
+      "- ・加盟社：63社70エリア（2025年6月末現在）直営含、無加盟6県：秋田・長野・徳島・高知・長崎・沖縄"
+    ],
+    "last_week": [
+      "- 7/14 実施設計上半期受付期限：ラーメン構造（オリジナル）",
+      "- 7/14 9:00-zoom:東京支店朝礼ミーティング",
+      "- 7/14 11:00-会議：加盟ミーティング",
+      "- 7/14 13:15-会議：東京SV打合せ",
+      "- 7/14 15:30-zoom：SV営業中間会議",
+      "- 7/16 キーマン視察：栃木支店",
+      "- 7/17 施主視察：㈱裏地工務店",
+      "- 7/18 9:20-事業部間ミーティング",
+      "- 7/15-17 営業研修：㈱ユーミーClass・チューケン㈱"
+    ],
+    "this_week": [
+      "- 7/22 9:00-zoom:東京支店朝礼ミーティング",
+      "- 7/22 11:00-会議：加盟ミーティング",
+      "- 7/25 9:20-事業部間ミーティング(福永)"
+    ],
+    "special_notes": [
+      "- 出張・訪問 松山 23-26畑中建設工業・杉村工務店",
+      "- 出張・訪問 山野 福永 22-23㈱裏地工務店",
+      "- 吉開 22鎌形建設㈱・25㈱杉村工務店",
+      "- 渋川 22鎌形・23会澤・24畑中・25三和",
+      "- 重 石地 中森 岡元 22-23㈱裏地工務店"
+    ]
+  },
+  "section-46-a1d4c009": {
+    "title": "FCリノベーション",
+    "parent": "ＦＣ事業本部",
+    "path": "ＦＣ事業本部 > FCリノベーション",
+    "manager_report": [],
+    "last_week": [
+      "- 7/14 部署内定例M/",
+      "ショールーム視察/",
+      "春花園弐番館打合せ",
+      "- 7/15 ユーミーサロン動画撮影/",
+      "割田様邸現場監理",
+      "- 7/16 ユーミーサロン動画撮影/",
+      "２Fリフォーム打合せ/",
+      "金子様邸打合せ",
+      "- 7/17 天草職員住宅PJ定例M/",
+      "姶良新店舗打合せ/",
+      "イメチェン打合せ",
+      "- 7/18 ヨネダ・エコーズ打合せ/",
+      "金子様邸ショールーム案内"
+    ],
+    "this_week": [
+      "- 7/22 久保組定例M/部署定例/案件打合せ/ブロード打合せ他",
+      "- 7/23 関森様邸・割田様邸工事監理/新小岩パークホームズ打合せ",
+      "- 7/24 割田様邸工事監理/天草職員住宅PJ打合せ",
+      "- 7/25 野瀬様邸工事立会い",
+      "- 7/26 山梨店打合せ/山梨オーナー会参加",
+      "- 7/27 キャメロットN建物診断/ルミエールオーナー訪問"
+    ],
+    "special_notes": [
+      "- 出張・訪問",
+      "- 牧迫：7/25-27東京・山梨出張（山梨オーナー会）",
+      "- 牧野・吉田・奥田：7/26-27山梨出張（オーナー会・建物診断）"
+    ]
+  },
+  "section-51-b32622fd": {
+    "title": "設計部",
+    "parent": "ＦＣ事業本部",
+    "path": "ＦＣ事業本部 > 設計部",
+    "manager_report": [],
+    "last_week": [
+      "- 64期 ＦＣ納品累計 ＝ 39 棟 ／直営納品累計 ＝ 16 棟 計 ＝ 55 棟",
+      "担当",
+      "1 ユーミー沖田 株式会社田頭建設 カベ 6*3（1LDK） 田代",
+      "2 久具マンションＡ棟 昭和建設工業株式会社 カベ 6*4（1K） 平川",
+      "【業務実績】",
+      "7/14 耐震等級2設計打合せ",
+      "7/16 設計部会",
+      "7/14･18 国分中央3場所打杭施工見学",
+      "7/17 鈴木組設計打合せ",
+      "7/15 設計ｲﾍﾞﾝﾄ打合せ",
+      "7/18 安全衛生委員会"
+    ],
+    "this_week": [
+      "- 64期 今週納品予定",
+      "- 担当",
+      "1 ＢＳ東餅田1474 鹿児島本店 カベ 7*3（複合） 松田",
+      "2 久具マンションＢ棟 昭和建設工業株式会社 カベ 7*4（1LDK） 平川",
+      "3 波島1丁目ＹＭﾏﾝｼｮﾝ 神崎建設工業株式会社 カベ 2*3（2LDK） 平川",
+      "- 【業務予定】",
+      "7/22-23 裏地工務店訪問打合せ",
+      "7/24 新築募集フロー説明会",
+      "7/22 下竜尾116着工前",
+      "7/24 平松6560着工前",
+      "7/23 電子契約打合せ",
+      "7/25 建築事業本部建築部会"
+    ],
+    "special_notes": [
+      "- 64期 ＦＣ受付累計 ＝ 50 棟",
+      "／ 直営受付累計 ＝ 22 棟",
+      "計 ＝ 72 棟",
+      "担当"
+    ]
+  },
+  "section-56-132b98a4": {
+    "title": "資材",
+    "parent": "ＦＣ事業本部",
+    "path": "ＦＣ事業本部 > 資材",
+    "manager_report": [],
+    "last_week": [
+      "- 7/17 メーカー来社打ち合わせ",
+      "(山善・パナソニック・マックス)",
+      "受発注業務",
+      "見積書作成"
+    ],
+    "this_week": [
+      "- 7/23－24 加盟社訪問打ち合わせ 受発注業務 見積作成"
+    ],
+    "special_notes": [
+      "- 出張 角、山口・7/23～24",
+      "- 栗山建設・伸晃建設・鹿児島金属、ナフィックス"
+    ]
+  },
+  "section-62-7afde312": {
+    "title": "リフォーム",
+    "parent": "ソリューション事業本部",
+    "path": "ソリューション事業本部 > リフォーム",
+    "manager_report": [
+      "- 先週 反響 7件 7月総計 43件 本店契約：6件 1,723,640円 霧島店契約：2件 703,000円"
+    ],
+    "last_week": [
+      "- 7/14 9:30～部ミーティング",
+      "- 7/16 17：00～2Fリノベーション打合せ",
+      "- 7/17 10：30～Panasonicショールーム研修"
+    ],
+    "this_week": [
+      "- 7/22 9:30～部ミーティング",
+      "- 7/23 9：30～定例会"
+    ],
+    "special_notes": [
+      "- 出張"
+    ]
+  },
+  "section-67-dffd1c43": {
+    "title": "リノベーション",
+    "parent": "ソリューション事業本部",
+    "path": "ソリューション事業本部 > リノベーション",
+    "manager_report": [
+      "- 契約：加藤様邸 400,000円",
+      "- サンハイツ松下 445,455円(頴川)",
+      "- サンハイツ新栄 410号室エアコン取替え工事 113,637円 (下池)",
+      "- 共生ホームあおぞら南栄 天井エアコン交換工事 135,455円 (松浦)"
+    ],
+    "last_week": [
+      "- 7/15 9:30～部ミーティング",
+      "8：30～エスポワールN社内検査",
+      "- 7/16 17：00～2Fリノベーション打合せ",
+      "- 7/18 18：30～不動産経営会"
+    ],
+    "this_week": [
+      "- 7/22 9:30～部ミーティング",
+      "11：00～パークメゾン斉脇社内検査",
+      "- 7/23 9：30～定例会",
+      "- 7/24～25 各店舗：オーナー訪問勉強会"
+    ],
+    "special_notes": [
+      "- 出張 不動産業者提携訪問(木曜日) 現提携店 22社 7月メモリー不動産"
+    ]
+  },
+  "section-74-4306318c": {
+    "title": "経営企画室",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > 経営企画室",
+    "manager_report": [
+      "- ■６４期指針：➀決まる部屋作り対策 ②中途管理受託促進 ③オーナー営業レクチャー（問答集） ④新築対策 （４大方針）"
+    ],
+    "last_week": [
+      "- 7/7クラスコ様訪問後打ち合わせ（",
+      "- ９/４ソリューション、クラスコ訪問予定）"
+    ],
+    "this_week": [
+      "- 入居者対応 Q＆A作成",
+      "- 7/22 月次監査・ 経営幹部会議"
+    ],
+    "special_notes": []
+  },
+  "section-79-cb563d9d": {
+    "title": "ｼｽﾃﾑ管理室",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > ｼｽﾃﾑ管理室",
+    "manager_report": [
+      "- テスター説明会を7/24 7/25に行わせていただきます。"
+    ],
+    "last_week": [
+      "- 7/14 入居者アプリ、テスター募集",
+      "- 7/14証明書料金についての打ち合わせ"
+    ],
+    "this_week": [
+      "- 7/24、",
+      "- 7/25 入居者アプリ説明会"
+    ],
+    "special_notes": [
+      "- 7/28の入居者アプリテストに向けて準備を行います。",
+      "- CSへの説明会は完了しています"
+    ]
+  },
+  "section-84-c109fc55": {
+    "title": "賃貸管理部",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > 賃貸管理部",
+    "manager_report": [
+      "- 今期主要数字着地予測、目標乖離分析・検証、来期体制検討",
+      "※98％までの入居必要戸数日々確認",
+      "※キャンペーン成約状況日々確認",
+      "※決まる部屋作り検討（４月以降稼働）",
+      "※オーナーカルテ作成（オーナー定期訪問 ４月に１回）",
+      "■６４期指針：",
+      "➀対応から応対への変化",
+      "②安定事業への成長（売上目標年間２億１千万）",
+      "巡回8件",
+      "新規提携施設0件",
+      "提携合計387件",
+      "案内8件",
+      "相談10件",
+      "入居件数4件",
+      "売上650,000",
+      "1",
+      "※経営企画会議"
+    ],
+    "last_week": [
+      "- 7/17 姶良店移転先内装打ち合わせ"
+    ],
+    "this_week": [
+      "- 7/24 着工前打合せ ベーシック平松6560",
+      "- 7/25 オーナー訪問勉強会（姶良）"
+    ],
+    "special_notes": [
+      "- SHINE CASA（ベーシック郡山中前） 16/18 1/17",
+      "- レリアテラス川内南（レリアテラス川内南） 6/21 2/15",
+      "- ＬＩＶＥⅡ(ベーシック大牟礼3丁目) 15/18 ３/１５",
+      "- リュクス ウエスト（西開聞町ビルⅡ） 8/18 3/29",
+      "- ブルフェヒルズ上竜尾 5/20 5/3",
+      "- ラ・フォーレ小野 7/21 9/13",
+      "- (仮)ベーシック東郷３１５ 0/18 1/22",
+      "- ラフィーネさつま（ベーシック宮之城屋地） 0/18 1/17"
+    ]
+  },
+  "section-89-52ac4b84": {
+    "title": "業務部",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > 業務部",
+    "manager_report": [
+      "- 今期主要数字着地予測、目標乖離分析・検証、来期体制検討",
+      "※98％までの入居必要戸数日々確認",
+      "※キャンペーン成約状況日々確認",
+      "※決まる部屋作り検討（４月以降稼働）",
+      "※オーナーカルテ作成（オーナー定期訪問 ４月に１回）",
+      "■６４期指針：",
+      "➀対応から応対への変化",
+      "②安定事業への成長（売上目標年間２億１千万）",
+      "巡回8件",
+      "新規提携施設0件",
+      "提携合計387件",
+      "案内8件",
+      "相談10件",
+      "入居件数4件",
+      "売上650,000",
+      "1",
+      "※経営企画会議"
+    ],
+    "last_week": [
+      "- 7/15 経理基礎勉強会",
+      "- 7/18 安全衛生委員会"
+    ],
+    "this_week": [
+      "- 7/22 月次監査、",
+      "20日送金実行"
+    ],
+    "special_notes": [
+      "- SHINE CASA（ベーシック郡山中前） 16/18 1/17",
+      "- レリアテラス川内南（レリアテラス川内南） 6/21 2/15",
+      "- ＬＩＶＥⅡ(ベーシック大牟礼3丁目) 15/18 ３/１５",
+      "- リュクス ウエスト（西開聞町ビルⅡ） 8/18 3/29",
+      "- ブルフェヒルズ上竜尾 5/20 5/3",
+      "- ラ・フォーレ小野 7/21 9/13",
+      "- (仮)ベーシック東郷３１５ 0/18 1/22",
+      "- ラフィーネさつま（ベーシック宮之城屋地） 0/18 1/17"
+    ]
+  },
+  "section-94-c9907215": {
+    "title": "ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "manager_report": [
+      "- 今期主要数字着地予測、目標乖離分析・検証、来期体制検討",
+      "※98％までの入居必要戸数日々確認",
+      "※キャンペーン成約状況日々確認",
+      "※決まる部屋作り検討（４月以降稼働）",
+      "※オーナーカルテ作成（オーナー定期訪問 ４月に１回）",
+      "■６４期指針：",
+      "➀対応から応対への変化",
+      "②安定事業への成長（売上目標年間２億１千万）",
+      "巡回8件",
+      "新規提携施設0件",
+      "提携合計387件",
+      "案内8件",
+      "相談10件",
+      "入居件数4件",
+      "売上650,000",
+      "1",
+      "※経営企画会議"
+    ],
+    "last_week": [
+      "- 7/15 巡回清掃点検実施（江藤・有満・薗田）",
+      "- 7/18 ＣＳ会議",
+      "・鴨池２丁目空室分ベランダ点検調査"
+    ],
+    "this_week": [
+      "- 7/26",
+      "- ７/１５ 巡回清掃点検実施（江藤・有満・園田）",
+      "- 7/27 鴨池２丁目 １号棟～4号棟ベランダ手摺点検"
+    ],
+    "special_notes": [
+      "- SHINE CASA（ベーシック郡山中前） 16/18 1/17",
+      "- レリアテラス川内南（レリアテラス川内南） 6/21 2/15",
+      "- ＬＩＶＥⅡ(ベーシック大牟礼3丁目) 15/18 ３/１５",
+      "- リュクス ウエスト（西開聞町ビルⅡ） 8/18 3/29",
+      "- ブルフェヒルズ上竜尾 5/20 5/3",
+      "- ラ・フォーレ小野 7/21 9/13",
+      "- (仮)ベーシック東郷３１５ 0/18 1/22",
+      "- ラフィーネさつま（ベーシック宮之城屋地） 0/18 1/17"
+    ]
+  },
+  "section-99-663b717e": {
+    "title": "ｳﾁｼﾙﾍﾞ",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > ｳﾁｼﾙﾍﾞ",
+    "manager_report": [
+      "- 今期主要数字着地予測、目標乖離分析・検証、来期体制検討",
+      "※98％までの入居必要戸数日々確認",
+      "※キャンペーン成約状況日々確認",
+      "※決まる部屋作り検討（４月以降稼働）",
+      "※オーナーカルテ作成（オーナー定期訪問 ４月に１回）",
+      "■６４期指針：",
+      "➀対応から応対への変化",
+      "②安定事業への成長（売上目標年間２億１千万）",
+      "巡回8件",
+      "新規提携施設0件",
+      "提携合計387件",
+      "案内8件",
+      "相談10件",
+      "入居件数4件",
+      "売上650,000",
+      "1",
+      "※経営企画会議"
+    ],
+    "last_week": [
+      "- 7/7 ミーティング",
+      "- 7/10～",
+      "- 7/11 ウチシルベ全国会議（福岡）"
+    ],
+    "this_week": [
+      "- 7/14 ミーティング（ロールプレイング研修）"
+    ],
+    "special_notes": [
+      "- SHINE CASA（ベーシック郡山中前） 16/18 1/17",
+      "- レリアテラス川内南（レリアテラス川内南） 6/21 2/15",
+      "- ＬＩＶＥⅡ(ベーシック大牟礼3丁目) 15/18 ３/１５",
+      "- リュクス ウエスト（西開聞町ビルⅡ） 8/18 3/29",
+      "- ブルフェヒルズ上竜尾 5/20 5/3",
+      "- ラ・フォーレ小野 7/21 9/13",
+      "- (仮)ベーシック東郷３１５ 0/18 1/22",
+      "- ラフィーネさつま（ベーシック宮之城屋地） 0/18 1/17"
+    ]
+  },
+  "section-104-deb4c738": {
+    "title": "賃貸営業部",
+    "parent": "不動産事業本部 > 鹿児島",
+    "path": "不動産事業本部 > 鹿児島 > 賃貸営業部",
+    "manager_report": [
+      "- 今期主要数字着地予測、目標乖離分析・検証、来期体制検討",
+      "※98％までの入居必要戸数日々確認",
+      "※キャンペーン成約状況日々確認",
+      "※決まる部屋作り検討（４月以降稼働）",
+      "※オーナーカルテ作成（オーナー定期訪問 ４月に１回）",
+      "■６４期指針：",
+      "➀対応から応対への変化",
+      "②安定事業への成長（売上目標年間２億１千万）",
+      "巡回8件",
+      "新規提携施設0件",
+      "提携合計387件",
+      "案内8件",
+      "相談10件",
+      "入居件数4件",
+      "売上650,000",
+      "1",
+      "※経営企画会議"
+    ],
+    "last_week": [
+      "- 7/17 小瀬さん入社",
+      "新入社員オリエンテーション",
+      "- 7/18売買実務者会議",
+      "- 7/20郡山土地売買契約"
+    ],
+    "this_week": [
+      "- 7/24・",
+      "- 7/25 入居者アプリテスト説明会",
+      "- 7/25 ユーミーナイト水族館打合せ",
+      "- 7/22姶良地区ローラー訪問",
+      "- 7/24オーナー勉強会"
+    ],
+    "special_notes": [
+      "- SHINE CASA（ベーシック郡山中前） 16/18 1/17",
+      "- レリアテラス川内南（レリアテラス川内南） 6/21 2/15",
+      "- ＬＩＶＥⅡ(ベーシック大牟礼3丁目) 15/18 ３/１５",
+      "- リュクス ウエスト（西開聞町ビルⅡ） 8/18 3/29",
+      "- ブルフェヒルズ上竜尾 5/20 5/3",
+      "- ラ・フォーレ小野 7/21 9/13",
+      "- (仮)ベーシック東郷３１５ 0/18 1/22",
+      "- ラフィーネさつま（ベーシック宮之城屋地） 0/18 1/17"
+    ]
+  },
+  "section-110-fd35607b": {
+    "title": "賃貸管理部",
+    "parent": "不動産事業本部 > 熊本",
+    "path": "不動産事業本部 > 熊本 > 賃貸管理部",
+    "manager_report": [
+      "- YMサマーフェスタ準備",
+      "- オーナー会加入推進"
+    ],
+    "last_week": [
+      "- 7/15管理部ミーティング"
+    ],
+    "this_week": [
+      "- 7/22改善会議",
+      "- 7/24新築募集フロー",
+      "全管協定例会・懇親会",
+      "- 7/25入居者アプリ説明会"
+    ],
+    "special_notes": [
+      "- YM玉名中 0/15 9/上"
+    ]
+  },
+  "section-115-745454f1": {
+    "title": "賃貸営業部",
+    "parent": "不動産事業本部 > 熊本",
+    "path": "不動産事業本部 > 熊本 > 賃貸営業部",
+    "manager_report": [
+      "- YMサマーフェスタ準備",
+      "- オーナー会加入推進"
+    ],
+    "last_week": [
+      "- 7/17熊本賃貸営業部会議",
+      "- 7/18宅建協会研修会"
+    ],
+    "this_week": [
+      "- 7/22改善会議 YM玉名市中打合せ",
+      "- 7/24新築募集フロー研修",
+      "入居促進Ｐミーティング",
+      "入居者アプリテスト説明会"
+    ],
+    "special_notes": [
+      "- YM玉名中 0/15 9/上"
+    ]
+  },
+  "section-120-1e5edc98": {
+    "title": "業務部",
+    "parent": "不動産事業本部 > 熊本",
+    "path": "不動産事業本部 > 熊本 > 業務部",
+    "manager_report": [
+      "- YMサマーフェスタ準備",
+      "- オーナー会加入推進"
+    ],
+    "last_week": [
+      "- 7/14証明書手数料打合せ",
+      "- 7/18家賃送金日・２５日業者支払額〆日"
+    ],
+    "this_week": [
+      "- 7/22改善会議",
+      "- 7/24入居者アプリテスト説明会",
+      "入居促進ＰＪミーティング"
+    ],
+    "special_notes": [
+      "- YM玉名中 0/15 9/上"
+    ]
+  },
+  "section-125-86cac4f1": {
+    "title": "ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "parent": "不動産事業本部 > 熊本",
+    "path": "不動産事業本部 > 熊本 > ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "manager_report": [
+      "- YMサマーフェスタ準備",
+      "- オーナー会加入推進"
+    ],
+    "last_week": [
+      "- 7/15賃貸管理打ち合わせ",
+      "- 7/18CS部打ち合わせ"
+    ],
+    "this_week": [
+      "- 7/22改善会議",
+      "- 7/24新築募集フロー",
+      "- 7/25入居者アプリ説明会"
+    ],
+    "special_notes": [
+      "- YM玉名中 0/15 9/上"
+    ]
+  },
+  "section-130-c3e80e99": {
+    "title": "みやき店",
+    "parent": "不動産事業本部 > 熊本",
+    "path": "不動産事業本部 > 熊本 > みやき店",
+    "manager_report": [
+      "- YMサマーフェスタ準備",
+      "- オーナー会加入推進"
+    ],
+    "last_week": [
+      "- 7/14基山町役場 SPC会議",
+      "- 7/15大刀洗町定例会",
+      "- 7/16みやき店ミーティング",
+      "- 7/18みやき町定例会"
+    ],
+    "this_week": [
+      "- 7/24佐賀全管協総会",
+      "- 7/25渡邊本部長みやき店打合せ・みやき店正社員面接"
+    ],
+    "special_notes": [
+      "- YM玉名中 0/15 9/上"
+    ]
+  },
+  "section-136-f3194d58": {
+    "title": "賃貸管理部",
+    "parent": "不動産事業本部 > 栃木",
+    "path": "不動産事業本部 > 栃木 > 賃貸管理部",
+    "manager_report": [
+      "- 7/12次世代オーナーセミナー開催（8組13名参加）",
+      "- ■６４期指針：対応から応対への変化",
+      "- ②安定事業への成長（売上目標年間１億５千万）"
+    ],
+    "last_week": [
+      "- 7/14小山業者会",
+      "- 7/17M&A勉強会"
+    ],
+    "this_week": [
+      "- 7/22事業部間ＭＴ",
+      "- 7/24新築募集フロー説明会"
+    ],
+    "special_notes": [
+      "- ルミライズ一条（Y＆M一条2丁目） 13/14 3/4",
+      "Y＆M大通り3丁目4-2（IRMSⅢ） 0/64 8/予定",
+      "サンホープ長田（Y＆M長田1丁目） 20/36 3/21",
+      "Y＆M小山市小山 0/18 8/予定",
+      "コンフォール（Y＆M駒生1761） 10/16 3/31",
+      "グランパセオ元今泉 3/31 6/1"
+    ]
+  },
+  "section-141-358588f1": {
+    "title": "賃貸営業部",
+    "parent": "不動産事業本部 > 栃木",
+    "path": "不動産事業本部 > 栃木 > 賃貸営業部",
+    "manager_report": [
+      "- 7/12次世代オーナーセミナー開催（8組13名参加）",
+      "- ■６４期指針：対応から応対への変化",
+      "- ②安定事業への成長（売上目標年間１億５千万）"
+    ],
+    "last_week": [
+      "- 7/17",
+      "M＆A勉強会"
+    ],
+    "this_week": [
+      "- 7/24新築募集フロー研修",
+      "- 7/25五霞町PFI定例会",
+      "- 7/26八千代町夏祭りブース出展"
+    ],
+    "special_notes": [
+      "- ルミライズ一条（Y＆M一条2丁目） 13/14 3/4",
+      "Y＆M大通り3丁目4-2（IRMSⅢ） 0/64 8/予定",
+      "サンホープ長田（Y＆M長田1丁目） 20/36 3/21",
+      "Y＆M小山市小山 0/18 8/予定",
+      "コンフォール（Y＆M駒生1761） 10/16 3/31",
+      "グランパセオ元今泉 3/31 6/1"
+    ]
+  },
+  "section-146-9f3a8957": {
+    "title": "業務部",
+    "parent": "不動産事業本部 > 栃木",
+    "path": "不動産事業本部 > 栃木 > 業務部",
+    "manager_report": [
+      "- 7/12次世代オーナーセミナー開催（8組13名参加）",
+      "- ■６４期指針：対応から応対への変化",
+      "- ②安定事業への成長（売上目標年間１億５千万）"
+    ],
+    "last_week": [
+      "- 7/14証明書手数料打合せ",
+      "- 7/17M＆A勉強会"
+    ],
+    "this_week": [
+      "- 7/24新築募集フロー説明会",
+      "- 7/20保険･更新打合せ"
+    ],
+    "special_notes": [
+      "- ルミライズ一条（Y＆M一条2丁目） 13/14 3/4",
+      "Y＆M大通り3丁目4-2（IRMSⅢ） 0/64 8/予定",
+      "サンホープ長田（Y＆M長田1丁目） 20/36 3/21",
+      "Y＆M小山市小山 0/18 8/予定",
+      "コンフォール（Y＆M駒生1761） 10/16 3/31",
+      "グランパセオ元今泉 3/31 6/1"
+    ]
+  },
+  "section-151-2860cf8b": {
+    "title": "ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "parent": "不動産事業本部 > 栃木",
+    "path": "不動産事業本部 > 栃木 > ｶｽﾀﾏｰｻｰﾋﾞｽ部",
+    "manager_report": [
+      "- 7/12次世代オーナーセミナー開催（8組13名参加）",
+      "- ■６４期指針：対応から応対への変化",
+      "- ②安定事業への成長（売上目標年間１億５千万）"
+    ],
+    "last_week": [
+      "- 7/17 M＆A勉強会",
+      "- 7/18 CS部会議"
+    ],
+    "this_week": [
+      "- 7/24新築募集フロー説明会・入居者アプリ説明会"
+    ],
+    "special_notes": [
+      "- ルミライズ一条（Y＆M一条2丁目） 13/14 3/4",
+      "Y＆M大通り3丁目4-2（IRMSⅢ） 0/64 8/予定",
+      "サンホープ長田（Y＆M長田1丁目） 20/36 3/21",
+      "Y＆M小山市小山 0/18 8/予定",
+      "コンフォール（Y＆M駒生1761） 10/16 3/31",
+      "グランパセオ元今泉 3/31 6/1"
+    ]
+  },
+  "section-157-e2da49bc": {
+    "title": "賃貸管理部",
+    "parent": "不動産事業本部 > 山梨",
+    "path": "不動産事業本部 > 山梨 > 賃貸管理部",
+    "manager_report": [],
+    "last_week": [
+      "- 7/17 支店会議"
+    ],
+    "this_week": [
+      "- 7/26 オーナ会"
+    ],
+    "special_notes": []
+  },
+  "section-162-481b707b": {
+    "title": "サポート",
+    "parent": "サポート",
+    "path": "サポート > サポート",
+    "manager_report": [
+      "- 7/20 初回保証料 0円",
+      "更新料 0円",
+      "代弁手数料 0円",
+      "合計 0円",
+      "宮下さん産後休暇",
+      "- 7/12～"
+    ],
+    "last_week": [
+      "- 7/14 各種業務打合せ",
+      "- 7/15 8月家賃請求データ締め",
+      "- 7/18 安全衛生委員会"
+    ],
+    "this_week": [
+      "- 7/22 アーネット退去者分対応",
+      "- 7/22 初回滞納・中途管理打合せ",
+      "- 7/25 他社保証滞納確認日"
+    ],
+    "special_notes": [
+      "- 回収",
+      "代位弁済回収金額 1件 9,166円（7/4～7/20）",
+      "- 未回収",
+      "代位弁済未回収金額 274件 13,133,352円",
+      "- 督促内容",
+      "訪問 2件",
+      "督促架電 81件(7/14～7/20）"
+    ]
+  },
+  "section-167-a360e65e": {
+    "title": "地域開発部",
+    "parent": "地域開発部",
+    "path": "地域開発部 > 地域開発部",
+    "manager_report": [],
+    "last_week": [
+      "- 7/14 錦江町PFIチーム打合せ（lifeplushome、三共建設）",
+      "- 7/16 肝付町チームミーティング",
+      "- 7/17 ダイワリース情報交換",
+      "- 7/18 錦江町募集要項質問〆切"
+    ],
+    "this_week": [
+      "- 7/23 曽於市実施方針説明会参加",
+      "- 7/24 熊本県職員住宅事業チームミーティング"
+    ],
+    "special_notes": [
+      "- PFI協会 出張"
+    ]
+  },
+  "section-172-ecb58281": {
+    "title": "IT",
+    "parent": "IT",
+    "path": "IT > IT",
+    "manager_report": [
+      "- 【受注報告】株式会社アミノ Web制作",
+      "- 京進スクールワン谷山教室 年間保守契約 等",
+      "- 【制作報告】中央デンタルクリニック https://chuo-dental.clinic/"
+    ],
+    "last_week": [
+      "- 社外 マチダ商事:デザイン、福上産業 開発、松吉建設 ロケハン、Web広告運用等 社内 FC（YMフレンズデザイン）リフォーム（広告運用、事例制作、）、総研（間取作成）"
+    ],
+    "this_week": [
+      "- 社外 マチダ商事:デザイン、",
+      "福上産業 開発、",
+      "Web広告運用、",
+      "Web解析rポート作成",
+      "- 社内 FC（YMフレンズデザイン）リフォーム（広告運用、事例制作、）、",
+      "総研（間取作成）"
+    ],
+    "special_notes": [
+      "- 出張"
+    ]
+  },
+  "section-177-3bcbebdd": {
+    "title": "アソシエート",
+    "parent": "アソシエート",
+    "path": "アソシエート > アソシエート",
+    "manager_report": [],
+    "last_week": [
+      "- 7/16 LAデスク提案（裏地工務店）、",
+      "- 7/17RENEW説明（森本建設）、",
+      "空室補償精算書発行",
+      "支払請求書・空室補償精算書管理部報告、",
+      "ｴﾅｼﾞｰ対応、",
+      "火災保険契約対応・進捗管理・見積作成"
+    ],
+    "this_week": [
+      "- 7/24 アソシエート会議、",
+      "- 7/25 エバーグリーン定例MT、",
+      "入金精算書管理部報告",
+      "ｴﾅｼﾞｰ対応、",
+      "火災保険契約対応・進捗管理・見積作成、",
+      "LAデスク裏地工務店会員化施策対応"
+    ],
+    "special_notes": [
+      "- 出張"
+    ]
+  },
+  "section-183-b6829161": {
+    "title": "LA",
+    "parent": "関連会社",
+    "path": "関連会社 > LA",
+    "manager_report": [],
+    "last_week": [
+      "- 7/16 ｵﾘｯｸｽ打合せ、",
+      "- 7/17 AI電話打合せ、",
+      "ﾃﾞｨｽｸﾛｰｼﾞｬｰ誌・業務報告書作成",
+      "イタンジ連携、",
+      "EC-CUBEサイト構築、",
+      "AIOCR検討、",
+      "AI電話サービス導入検討",
+      "ナップ賃貸・ジェイリース・クレデンス保証会社システム連携"
+    ],
+    "this_week": [
+      "- 7/23 LA定例会議、",
+      "AI電話導入検討、",
+      "AIOCR導入検討、",
+      "ﾃﾞｨｽｸﾛｰｼﾞｬｰ誌・業務報告書作成",
+      "イタンジ連携、",
+      "EC-CUBEサイト構築、",
+      "オーナー契約パッケージ商品立案",
+      "ナップ賃貸・ジェイリース・クレデンス保証会社システム連携、",
+      "ウチコミDM起案"
+    ],
+    "special_notes": [
+      "- 出張",
+      "（）"
+    ]
+  },
+  "section-188-8a3d431b": {
+    "title": "YM設計",
+    "parent": "関連会社",
+    "path": "関連会社 > YM設計",
+    "manager_report": [],
+    "last_week": [
+      "- 7/14 錦江町PFI：三共建設・アイフルホーム打合せ",
+      "- 7/15 錦江町PFI：打合せ（今田）",
+      "- 7/16 設計部会 2025-07-16 00:00:00 天草職員住宅：チームミーティング（今田・樺島）"
+    ],
+    "this_week": [
+      "- 7/24 天草職員住宅：",
+      "チームミーティング（今田・樺島）"
+    ],
+    "special_notes": [
+      "- 出張"
+    ]
+  },
+  "section-193-d58266ae": {
+    "title": "総研",
+    "parent": "関連会社",
+    "path": "関連会社 > 総研",
+    "manager_report": [
+      "- 7/21：デスクネッツ・sv-fileserverサーバー交換"
+    ],
+    "last_week": [
+      "- 社長室 コストダウンPJ打合せ、",
+      "社長室打合せ、",
+      "安全書類打合せ",
+      "- 総研 R7-2EVスタンド工事調整、",
+      "エバーグリーン打合せ、",
+      "キッズサポート打合せ",
+      "- 電気料金収納打合せ、",
+      "入居者アプリ打合せ"
+    ],
+    "this_week": [
+      "- 社長室 原価管理システム検証作業、",
+      "- 購買業務：鹿児島・熊本・山梨、",
+      "- 建設事業部会 総研 電気料金収納打合せ：エバーグリーン・ニッポンインシュア",
+      "- 会社携帯打合せ：ソフトバンク・KDDI"
+    ],
+    "special_notes": [
+      "- 出張"
+    ]
+  },
+  "section-198-de821430": {
+    "title": "管理本部",
+    "parent": "管理本部",
+    "path": "管理本部 > 管理本部",
+    "manager_report": [
+      "- 7/22ﾄﾖﾚﾝ浅野9:30～・",
+      "- 7/24自衛隊合同説明会8:00～",
+      "※手形廃止に関する対応・昇給対応",
+      "※南国殖産北ｲﾝﾀｰSSは",
+      "- 7/27(日)まで営業"
+    ],
+    "last_week": [
+      "- なし なし"
+    ],
+    "this_week": [
+      "- 7/25 ｴﾑﾃﾞｨｱ国分ﾕｰﾐｰﾃﾗｽ 130701",
+      "- 7/25 YM小山市小山 70721"
+    ],
+    "special_notes": [
+      "- 出張・外出・休暇予定 社長 7/22-23出張 7/24-25外出"
+    ]
+  }
+};
+        
+        // 週次タブの展開/折りたたみ（5段階サイクル制御）
+        function toggleWeeklyTab(tabElement) {
+            const content = tabElement.nextElementSibling;
+            const parentGroup = tabElement.parentElement;
+            
+            // 他の全ての週次タブをリセット
+            document.querySelectorAll('.weekly-tab-group').forEach(group => {
+                if (group !== parentGroup) {
+                    group.setAttribute('data-state', 'closed');
+                    const otherContent = group.querySelector('.weekly-content');
+                    if (otherContent) {
+                        otherContent.classList.remove('expanded');
+                        group.classList.remove('expanded');
+                        collapseAllInWeekly(otherContent);
+                    }
+                }
+            });
+            
+            // 前回の全部署一覧表示をクリア
+            const existingSinglePage = document.getElementById('single-page-content');
+            if (existingSinglePage) {
+                existingSinglePage.remove();
+            }
+            
+            // 現在の状態を取得
+            const currentState = parentGroup.getAttribute('data-state') || 'closed';
+            
+            switch(currentState) {
+                case 'closed':
+                    // 1回目：閉じた状態 → 1階層目のみ展開
+                    content.classList.add('expanded');
+                    parentGroup.classList.add('expanded');
+                    parentGroup.setAttribute('data-state', 'first-level');
+                    expandFirstLevelOnly(content);
+                    // DOM更新を確実に待ってから週次データを右側に表示
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            showWeeklyOverview(parentGroup);
+                        }, 10);
+                    });
+                    break;
+                    
+                case 'first-level':
+                    // 2回目：1階層目のみ → 全階層展開
+                    parentGroup.setAttribute('data-state', 'full-expanded');
+                    expandAllInWeekly(content);
+                    break;
+                    
+                case 'full-expanded':
+                    // 3回目：全階層展開 → 完全格納（1回目に戻る）
+                    content.classList.remove('expanded');
+                    parentGroup.classList.remove('expanded');
+                    parentGroup.setAttribute('data-state', 'closed');
+                    collapseAllInWeekly(content);
+                    // 空の状態に戻す
+                    showEmptyState();
+                    break;
+                    
+                default:
+                    // 初期状態またはその他 → 1階層目のみ展開
+                    content.classList.add('expanded');
+                    parentGroup.classList.add('expanded');
+                    parentGroup.setAttribute('data-state', 'first-level');
+                    expandFirstLevelOnly(content);
+                    // DOM更新を確実に待ってから週次データを右側に表示
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            showWeeklyOverview(parentGroup);
+                        }, 10);
+                    });
+                    break;
+            }
+        }
+        
+        // 1階層目（事業部ヘッダー）のみ展開
+        function expandFirstLevelOnly(weeklyContent) {
+            // 事業部ヘッダーは表示するが、その下の部署は非表示
+            weeklyContent.querySelectorAll('.business-unit-group').forEach(group => {
+                group.classList.add('expanded'); // 事業部ヘッダーを表示
+                const list = group.querySelector('.dept-list, .regions-list');
+                if (list) {
+                    list.classList.remove('expanded'); // 部署リストは非表示
+                }
+            });
+        }
+        
+        // 1階層目のみに戻す（全階層展開から）
+        function collapseToFirstLevel(weeklyContent) {
+            // 事業部ヘッダーは表示したまま、その下の部署のみ非表示
+            weeklyContent.querySelectorAll('.business-unit-group').forEach(group => {
+                const list = group.querySelector('.dept-list, .regions-list');
+                if (list) {
+                    list.classList.remove('expanded');
+                }
+            });
+            
+            // 地域も収納（不動産事業本部用）
+            weeklyContent.querySelectorAll('.region-group').forEach(group => {
+                const deptList = group.querySelector('.dept-list');
+                if (deptList) {
+                    deptList.classList.remove('expanded');
+                    group.classList.remove('expanded');
+                }
+            });
+        }
+        
+        // 週次タブ内の全て展開
+        function expandAllInWeekly(weeklyContent) {
+            // 事業部を展開
+            weeklyContent.querySelectorAll('.business-unit-group').forEach(group => {
+                group.classList.add('expanded');
+                const list = group.querySelector('.dept-list, .regions-list');
+                if (list) {
+                    list.classList.add('expanded');
+                }
+            });
+            
+            // 地域も展開（不動産事業本部用）
+            weeklyContent.querySelectorAll('.region-group').forEach(group => {
+                const header = group.querySelector('.region-header');
+                const deptList = group.querySelector('.dept-list');
+                
+                if (header && deptList) {
+                    deptList.classList.add('expanded');
+                    group.classList.add('expanded');
+                }
+            });
+        }
+        
+        // 週次タブ内の全て収納
+        function collapseAllInWeekly(weeklyContent) {
+            // 事業部を収納
+            weeklyContent.querySelectorAll('.business-unit-group').forEach(group => {
+                group.classList.remove('expanded');
+                const list = group.querySelector('.dept-list, .regions-list');
+                if (list) {
+                    list.classList.remove('expanded');
+                }
+            });
+            
+            // 地域も収納（不動産事業本部用）
+            weeklyContent.querySelectorAll('.region-group').forEach(group => {
+                const deptList = group.querySelector('.dept-list');
+                if (deptList) {
+                    deptList.classList.remove('expanded');
+                    group.classList.remove('expanded');
+                }
+            });
+        }
+        
+        // 事業部の展開/折りたたみ
+        function toggleBusinessUnit(unitElement) {
+            const list = unitElement.nextElementSibling;
+            const parentGroup = unitElement.parentElement;
+            
+            if (list.classList.contains('expanded')) {
+                list.classList.remove('expanded');
+                parentGroup.classList.remove('expanded');
+            } else {
+                list.classList.add('expanded');
+                parentGroup.classList.add('expanded');
+            }
+        }
+        
+        // 地域の展開/折りたたみ（不動産事業本部用）
+        function toggleRegion(regionElement) {
+            const deptList = regionElement.nextElementSibling;
+            const parentGroup = regionElement.parentElement;
+            
+            if (deptList.classList.contains('expanded')) {
+                deptList.classList.remove('expanded');
+                parentGroup.classList.remove('expanded');
+            } else {
+                deptList.classList.add('expanded');
+                parentGroup.classList.add('expanded');
+            }
+        }
+        
+        // 部署選択
+        function selectDept(deptElement, sectionId) {
+            // 全ての部署の選択状態をリセット
+            document.querySelectorAll('.dept-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 選択された部署をアクティブに
+            deptElement.classList.add('active');
+            
+            // データを取得して表示
+            const sectionInfo = sectionData[sectionId];
+            if (sectionInfo) {
+                showDeptDetails(sectionInfo);
+            }
+        }
+        
+        // 部署詳細を表示
+        function showDeptDetails(sectionInfo) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('content-area').style.display = 'block';
+            
+            // 単一ページコンテンツを隠して、通常のセクション表示に戻す
+            const singlePageContainer = document.getElementById('single-page-content');
+            if (singlePageContainer) {
+                singlePageContainer.style.display = 'none';
+            }
+            
+            const detailSections = document.querySelector('.detail-sections');
+            if (detailSections) {
+                detailSections.style.display = 'block';
+            }
+            
+            // タイトル設定
+            const icon = getUnitIcon(sectionInfo.parent || sectionInfo.title);
+            document.getElementById('content-title').innerHTML = 
+                `${icon} ${sectionInfo.title}`;
+            document.getElementById('content-subtitle').textContent = 
+                sectionInfo.path;
+            
+            // 各セクションの内容を設定
+            setContent('manager-report-content', sectionInfo.manager_report);
+            setContent('last-week-content', sectionInfo.last_week);
+            setContent('this-week-content', sectionInfo.this_week);
+            setContent('special-notes-content', sectionInfo.special_notes);
+        }
+        
+        // アイコン取得
+        function getUnitIcon(unitName) {
+            return '';
+        }
+        
+        // コンテンツ設定
+        function setContent(elementId, content) {
+            const element = document.getElementById(elementId);
+            if (content && content.length > 0) {
+                const ul = document.createElement('ul');
+                content.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    ul.appendChild(li);
+                });
+                element.innerHTML = '';
+                element.appendChild(ul);
+            } else {
+                element.innerHTML = '<p style="color: var(--text-secondary); margin: 0; font-style: italic;">データがありません</p>';
+            }
+        }
+        
+        // 全て展開（全ての週次タブを最大展開）
+        function expandAll() {
+            document.querySelectorAll('.weekly-tab-group').forEach(group => {
+                const header = group.querySelector('.weekly-tab-header');
+                const content = header?.nextElementSibling;
+                
+                if (content) {
+                    // 週次タブを展開し、全階層展開状態に設定
+                    content.classList.add('expanded');
+                    group.classList.add('expanded');
+                    group.setAttribute('data-state', 'full-expanded');
+                    expandAllInWeekly(content);
+                }
+            });
+        }
+        
+        // 全て収納（全ての週次タブを週次層まで縮める）
+        function collapseAll() {
+            document.querySelectorAll('.weekly-tab-group').forEach(group => {
+                const header = group.querySelector('.weekly-tab-header');
+                const content = header?.nextElementSibling;
+                
+                if (content) {
+                    // 週次タブのヘッダーのみ表示（週次層まで縮める）
+                    content.classList.remove('expanded');
+                    group.classList.remove('expanded');
+                    group.setAttribute('data-state', 'closed');
+                    collapseAllInWeekly(content);
+                }
+            });
+        }
+        
+        // 空の状態を表示
+        function showEmptyState() {
+            document.getElementById('empty-state').style.display = 'block';
+            document.getElementById('content-area').style.display = 'none';
+            
+            // 単一ページコンテンツも隠す
+            const singlePageContainer = document.getElementById('single-page-content');
+            if (singlePageContainer) {
+                singlePageContainer.style.display = 'none';
+            }
+        }
+        
+        // 週次概要を表示
+        function showWeeklyOverview(weeklyGroup) {
+            // 既存の全部署一覧を必ず削除
+            const existingSinglePage = document.getElementById('single-page-content');
+            if (existingSinglePage) {
+                existingSinglePage.remove();
+            }
+            
+            // detail-sectionsを確実に非表示
+            const detailSections = document.querySelector('.detail-sections');
+            if (detailSections) {
+                detailSections.style.display = 'none';
+            }
+            
+            // 週次タイトルを取得
+            const weeklyTitle = weeklyGroup.querySelector('.weekly-tab-header .unit-info span').textContent;
+            
+            // その週の全部署データを収集
+            const weeklyDepts = getWeeklyDeptData(weeklyGroup);
+            
+            if (weeklyDepts.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            // メインコンテンツエリアを表示
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('content-area').style.display = 'block';
+            
+            // タイトル設定
+            document.getElementById('content-title').innerHTML = 
+                `<i class="fas fa-calendar-week"></i> ${weeklyTitle} - 全部署一覧`;
+            document.getElementById('content-subtitle').textContent = 
+                `${weeklyDepts.length}部署のデータを表示中`;
+            
+            // 1つの連続したページに部署ごとに全セクションを表示
+            displayWeeklyOverviewAsSinglePage(weeklyDepts);
+        }
+        
+        // 週次の全部署データを取得（左サイドバーの表示順序と同じ順番で）
+        function getWeeklyDeptData(weeklyGroup) {
+            const weeklyDepts = [];
+            
+            // 左サイドバーの表示順序に従って取得
+            const allSelectableElements = weeklyGroup.querySelectorAll('[onclick*="selectDept"]');
+            
+            allSelectableElements.forEach(element => {
+                const onclickAttr = element.getAttribute('onclick');
+                const match = onclickAttr.match(/selectDept\(this, '([^']+)'\)/);
+                if (match) {
+                    const sectionId = match[1];
+                    const sectionInfo = sectionData[sectionId];
+                    if (sectionInfo) {
+                        weeklyDepts.push(sectionInfo);
+                    }
+                }
+            });
+            
+            return weeklyDepts;
+        }
+        
+        // 1つの連続したページに部署ごとに全セクションを表示
+        function displayWeeklyOverviewAsSinglePage(weeklyDepts) {
+            // セクションタブを非表示にして、1つの連続したコンテンツを表示
+            const contentArea = document.getElementById('content-area');
+            
+            // 既存のセクション構造を隠す
+            const detailSections = contentArea.querySelector('.detail-sections');
+            if (detailSections) {
+                detailSections.style.display = 'none';
+            }
+            
+            // 新しい単一ページコンテンツエリアを作成
+            let singlePageContainer = document.getElementById('single-page-content');
+            if (!singlePageContainer) {
+                singlePageContainer = document.createElement('div');
+                singlePageContainer.id = 'single-page-content';
+                singlePageContainer.style.cssText = 'padding: 16px; background: var(--main-bg);';
+                contentArea.appendChild(singlePageContainer);
+            }
+            
+            // 全部署のHTMLを生成
+            let allDeptsHtml = '';
+            
+            weeklyDepts.forEach((deptInfo, index) => {
+                // 部署ヘッダー（コンパクト版）
+                allDeptsHtml += `
+                    <div class="dept-complete-section" style="margin-bottom: 16px; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+                        <div class="dept-header" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 12px 16px;">
+                            <h2 style="margin: 0; font-size: 1.1rem; font-weight: 600;">${deptInfo.title}</h2>
+                            <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.8;">${deptInfo.path}</p>
+                        </div>
+                        <div class="dept-content" style="padding: 16px;">
+                `;
+                
+                // 所属長報告欄（コンパクト版）
+                allDeptsHtml += `
+                    <div class="section-block" style="margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem; font-weight: 600; padding: 6px 12px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-user-tie" style="color: #334155; font-size: 0.8rem;"></i>
+                            所属長報告欄
+                        </h3>
+                `;
+                
+                const managerData = deptInfo.manager_report || [];
+                if (managerData.length > 0) {
+                    allDeptsHtml += `<ul style="margin: 0; padding-left: 16px; list-style-type: disc;">`;
+                    managerData.forEach(item => {
+                        allDeptsHtml += `<li style="margin-bottom: 3px; line-height: 1.4; color: #374151; font-size: 0.9rem;">${item}</li>`;
+                    });
+                    allDeptsHtml += `</ul>`;
+                } else {
+                    allDeptsHtml += `<p style="color: #9ca3af; margin: 0; font-style: italic; padding: 8px; background: #f9fafb; border-radius: 4px; font-size: 0.85rem;">データがありません</p>`;
+                }
+                allDeptsHtml += `</div>`;
+                
+                // 先週の経過（コンパクト版）
+                allDeptsHtml += `
+                    <div class="section-block" style="margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem; font-weight: 600; padding: 6px 12px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-calendar-check" style="color: #1e40af; font-size: 0.8rem;"></i>
+                            先週の経過
+                        </h3>
+                `;
+                
+                const lastWeekData = deptInfo.last_week || [];
+                if (lastWeekData.length > 0) {
+                    allDeptsHtml += `<ul style="margin: 0; padding-left: 16px; list-style-type: disc;">`;
+                    lastWeekData.forEach(item => {
+                        allDeptsHtml += `<li style="margin-bottom: 3px; line-height: 1.4; color: #374151; font-size: 0.9rem;">${item}</li>`;
+                    });
+                    allDeptsHtml += `</ul>`;
+                } else {
+                    allDeptsHtml += `<p style="color: #9ca3af; margin: 0; font-style: italic; padding: 8px; background: #f9fafb; border-radius: 4px; font-size: 0.85rem;">データがありません</p>`;
+                }
+                allDeptsHtml += `</div>`;
+                
+                // 今週の予定（コンパクト版）
+                allDeptsHtml += `
+                    <div class="section-block" style="margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem; font-weight: 600; padding: 6px 12px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-calendar-plus" style="color: #065f46; font-size: 0.8rem;"></i>
+                            今週の予定
+                        </h3>
+                `;
+                
+                const thisWeekData = deptInfo.this_week || [];
+                if (thisWeekData.length > 0) {
+                    allDeptsHtml += `<ul style="margin: 0; padding-left: 16px; list-style-type: disc;">`;
+                    thisWeekData.forEach(item => {
+                        allDeptsHtml += `<li style="margin-bottom: 3px; line-height: 1.4; color: #374151; font-size: 0.9rem;">${item}</li>`;
+                    });
+                    allDeptsHtml += `</ul>`;
+                } else {
+                    allDeptsHtml += `<p style="color: #9ca3af; margin: 0; font-style: italic; padding: 8px; background: #f9fafb; border-radius: 4px; font-size: 0.85rem;">データがありません</p>`;
+                }
+                allDeptsHtml += `</div>`;
+                
+                // 特記事項（コンパクト版）
+                allDeptsHtml += `
+                    <div class="section-block" style="margin-bottom: 0;">
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem; font-weight: 600; padding: 6px 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-exclamation-triangle" style="color: #92400e; font-size: 0.8rem;"></i>
+                            特記事項
+                        </h3>
+                `;
+                
+                const specialNotesData = deptInfo.special_notes || [];
+                if (specialNotesData.length > 0) {
+                    allDeptsHtml += `<ul style="margin: 0; padding-left: 16px; list-style-type: disc;">`;
+                    specialNotesData.forEach(item => {
+                        allDeptsHtml += `<li style="margin-bottom: 3px; line-height: 1.4; color: #374151; font-size: 0.9rem;">${item}</li>`;
+                    });
+                    allDeptsHtml += `</ul>`;
+                } else {
+                    allDeptsHtml += `<p style="color: #9ca3af; margin: 0; font-style: italic; padding: 8px; background: #f9fafb; border-radius: 4px; font-size: 0.85rem;">データがありません</p>`;
+                }
+                
+                allDeptsHtml += `
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            // 単一ページコンテンツを設定
+            singlePageContainer.innerHTML = allDeptsHtml || '<p style="color: var(--text-secondary); margin: 0; font-style: italic; text-align: center; padding: 48px;">データがありません</p>';
+        }
+        
+        // 表示切り替え機能
+        function switchView(viewType) {
+            const weeklyTab = document.getElementById('weekly-view-tab');
+            const deptTab = document.getElementById('dept-aggregate-tab');
+            const weeklyNav = document.getElementById('weekly-navigation');
+            const deptNav = document.getElementById('dept-aggregate-navigation');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (viewType === 'weekly') {
+                weeklyTab.classList.add('active');
+                deptTab.classList.remove('active');
+                weeklyNav.style.display = 'block';
+                deptNav.style.display = 'none';
+                sidebar.classList.remove('dept-aggregate-mode');
+            } else if (viewType === 'dept-aggregate') {
+                weeklyTab.classList.remove('active');
+                deptTab.classList.add('active');
+                weeklyNav.style.display = 'none';
+                deptNav.style.display = 'block';
+                sidebar.classList.add('dept-aggregate-mode');
+                
+                // 右側のメインコンテンツを完全にリセット
+                showEmptyState();
+                
+                // 全部署一覧表示のDOM要素を完全に削除
+                const singlePageContainer = document.getElementById('single-page-content');
+                if (singlePageContainer) {
+                    singlePageContainer.remove();
+                }
+                
+                // 通常のセクション表示を復元
+                const detailSections = document.querySelector('.detail-sections');
+                if (detailSections) {
+                    detailSections.style.display = 'block';
+                }
+                
+                // 部署集計表示を初期化
+                if (!deptNav.hasAttribute('data-initialized')) {
+                    initializeDeptAggregateView();
+                    deptNav.setAttribute('data-initialized', 'true');
+                }
+            }
+        }
+        
+        // 部署集計表示の初期化
+        function initializeDeptAggregateView() {
+            const deptNav = document.getElementById('dept-aggregate-navigation');
+            const aggregatedDepts = aggregateDeptData();
+            
+            let html = '<ul class="dept-list-aggregate">';
+            
+            for (const [deptKey, deptInfo] of Object.entries(aggregatedDepts)) {
+                const displayName = getDisplayDeptName(deptInfo.path);
+                
+                html += `<li class="dept-item-aggregate" onclick="selectAggregatedDept(this, '${deptKey}')">
+                    <span class="dept-name">${displayName}</span>
+                </li>`;
+            }
+            
+            html += '</ul>';
+            deptNav.innerHTML = html;
+        }
+        
+        // 部署表示名を取得（重複を除去、必要な階層は保持）
+        function getDisplayDeptName(fullPath) {
+            const parts = fullPath.split(' > ');
+            
+            // 単純な重複のみを除去（例：サポート > サポート地域開発部 > 地域開発部）
+            if (parts.length >= 3) {
+                const lastPart = parts[parts.length - 1];
+                const secondLastPart = parts[parts.length - 2];
+                
+                // 最後の部分が前の部分に完全に含まれている場合のみ重複とみなす
+                if (secondLastPart.includes(lastPart) && secondLastPart !== lastPart) {
+                    return parts.slice(0, -1).join(' > ');
+                }
+            }
+            
+            // 2階層で完全に重複している場合（例：IT > IT）
+            if (parts.length === 2 && parts[0] === parts[1]) {
+                return parts[0];
+            }
+            
+            // その他の場合はフルパスを表示
+            return fullPath;
+        }
+        
+        // 部署データの集計
+        function aggregateDeptData() {
+            const aggregated = {};
+            
+            // 全セクションデータから最末端部署を抽出・集計
+            for (const [sectionId, sectionInfo] of Object.entries(sectionData)) {
+                const deptKey = sectionInfo.path; // 部署のフルパス
+                
+                if (!aggregated[deptKey]) {
+                    aggregated[deptKey] = {
+                        path: sectionInfo.path,
+                        title: sectionInfo.title,
+                        parent: sectionInfo.parent,
+                        manager_report: [],
+                        last_week: [],
+                        this_week: [],
+                        special_notes: []
+                    };
+                }
+                
+                // データを時系列で追加
+                aggregated[deptKey].manager_report.push(...sectionInfo.manager_report);
+                aggregated[deptKey].last_week.push(...sectionInfo.last_week);
+                aggregated[deptKey].this_week.push(...sectionInfo.this_week);
+                aggregated[deptKey].special_notes.push(...sectionInfo.special_notes);
+            }
+            
+            return aggregated;
+        }
+        
+        // 集計された部署の選択
+        function selectAggregatedDept(deptElement, deptKey) {
+            // 全ての部署の選択状態をリセット
+            document.querySelectorAll('.dept-item-aggregate').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 選択された部署をアクティブに
+            deptElement.classList.add('active');
+            
+            // 集計データを取得して表示
+            const aggregatedDepts = aggregateDeptData();
+            const deptInfo = aggregatedDepts[deptKey];
+            
+            if (deptInfo) {
+                showAggregatedDeptDetails(deptInfo);
+            }
+        }
+        
+        // 集計された部署詳細を表示
+        function showAggregatedDeptDetails(deptInfo) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('content-area').style.display = 'block';
+            
+            // タイトル設定
+            document.getElementById('content-title').innerHTML = 
+                `<i class="fas fa-chart-line"></i> ${deptInfo.title} (時系列集計)`;
+            document.getElementById('content-subtitle').textContent = 
+                deptInfo.path;
+            
+            // 各セクションの集計内容を設定
+            setAggregatedContent('manager-report-content', deptInfo.manager_report);
+            setAggregatedContent('last-week-content', deptInfo.last_week);
+            setAggregatedContent('this-week-content', deptInfo.this_week);
+            setAggregatedContent('special-notes-content', deptInfo.special_notes);
+        }
+        
+        // 集計コンテンツ設定
+        function setAggregatedContent(elementId, content) {
+            const element = document.getElementById(elementId);
+            if (content && content.length > 0) {
+                const ul = document.createElement('ul');
+                content.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    ul.appendChild(li);
+                });
+                element.innerHTML = '';
+                element.appendChild(ul);
+            } else {
+                element.innerHTML = '<p style="color: var(--text-secondary); margin: 0; font-style: italic;">データがありません</p>';
+            }
+        }
+        
+        // セクション別印刷機能
+        function printSection(sectionType) {
+            const sectionNames = {
+                'manager-report': '所属長報告欄',
+                'last-week': '先週の経過', 
+                'this-week': '今週の予定',
+                'special-notes': '特記事項'
+            };
+            
+            const sectionColors = {
+                'manager-report': 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)',
+                'last-week': 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                'this-week': 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                'special-notes': 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
+            };
+            
+            const sectionTextColors = {
+                'manager-report': '#334155',
+                'last-week': '#1e40af',
+                'this-week': '#065f46',
+                'special-notes': '#92400e'
+            };
+            
+            // 現在表示されている部署情報を取得
+            const currentTitle = document.getElementById('content-title')?.textContent || '';
+            const currentSubtitle = document.getElementById('content-subtitle')?.textContent || '';
+            
+            // セクションの内容を取得
+            const contentElement = document.getElementById(sectionType + '-content');
+            if (!contentElement) {
+                alert('印刷する内容がありません');
+                return;
+            }
+            
+            const content = contentElement.innerHTML;
+            
+            // 印刷用ウィンドウを作成
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html lang="ja">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${sectionNames[sectionType]} - ${currentTitle}</title>
+                    <style>
+                        body {
+                            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                            line-height: 1.6;
+                            color: #1f2937;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .print-header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #e5e7eb;
+                            padding-bottom: 20px;
+                        }
+                        .print-title {
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            margin: 0 0 10px 0;
+                            color: #1e293b;
+                        }
+                        .print-subtitle {
+                            font-size: 1rem;
+                            color: #6b7280;
+                            margin: 0;
+                        }
+                        .section-header {
+                            background: ${sectionColors[sectionType]};
+                            color: ${sectionTextColors[sectionType]};
+                            padding: 15px 20px;
+                            font-weight: 600;
+                            font-size: 1.1rem;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                        }
+                        .section-content {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            border: 1px solid #e5e7eb;
+                        }
+                        .section-content ul {
+                            margin: 0;
+                            padding-left: 20px;
+                        }
+                        .section-content li {
+                            margin-bottom: 8px;
+                            line-height: 1.6;
+                        }
+                        .print-footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 0.8rem;
+                            color: #6b7280;
+                            border-top: 1px solid #e5e7eb;
+                            padding-top: 10px;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .print-header, .section-header, .section-content { 
+                                break-inside: avoid; 
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <h1 class="print-title">週頭ミーティング資料</h1>
+                        <p class="print-subtitle">${currentSubtitle}</p>
+                    </div>
+                    
+                    <div class="section-header">
+                        ${sectionNames[sectionType]}
+                    </div>
+                    
+                    <div class="section-content">
+                        ${content}
+                    </div>
+                    
+                    <div class="print-footer">
+                        印刷日時: ${new Date().toLocaleString('ja-JP')}
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+            // 印刷実行
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+        
+        // 初期化（デフォルト全展開を廃止）
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初期状態では全て閉じた状態
+            console.log('週頭ミーティング資料が読み込まれました');
+        });
+    </script>
+</body>
+</html>
